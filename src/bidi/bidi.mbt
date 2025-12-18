@@ -1,8 +1,9 @@
 // === 主检查逻辑（基于 RFC 5893 简化实现） ===
 /// 检查单个 label 是否满足 IDNA Bidi 规则。
 /// 返回 true 表示通过，false 表示违反规则。
+
 ///|
-fn check_bidi_label(label : String) -> Bool {
+pub fn check_bidi_label(label : String) -> Bool {
   let chars = label.to_array()
   let len = chars.length()
   if len == 0 {
@@ -119,24 +120,31 @@ fn check_bidi_label(label : String) -> Bool {
   false
 }
 
-/// 针对整个域名（按 label 拆分）做 Bidi 检查：
-/// 目前策略：只要任何一个非空 label 违反规则，就认为整个域名有错误。
+// === 工具：查某个 codepoint 的 BidiClass ===
+
 ///|
-pub fn check_bidi_domain(labels : Array[String]) -> IdnaErrorList {
-  let errs : IdnaErrorList = []
-  let mut i = 0
-  while i < labels.length() {
-    let lbl = labels[i]
-    if lbl.length() == 0 {
-      i += 1
-      continue
-    }
-    if !check_bidi_label(lbl) {
-      errs.push(IdnaError::BidiError)
-      // 当前策略：发现一个错误就够了
-      return errs
-    }
-    i += 1
+fn bidi_class_of(cp : Int) -> BidiClass {
+  if bidi_table.length() == 0 {
+    // 没有表时，保守视为 ON
+    return BidiClass::ON
   }
-  errs
+  let mut left = 0
+  let mut right = bidi_table.length() - 1
+  while left <= right {
+    let mid = (left + right) / 2
+    let ent = bidi_table[mid]
+    if cp < ent.start {
+      if mid == 0 {
+        break
+      }
+      right = mid - 1
+    } else if cp > ent.end {
+      left = mid + 1
+    } else {
+      return ent.class
+    }
+  }
+
+  // 未命中的 codepoint，默认为 ON
+  BidiClass::ON
 }

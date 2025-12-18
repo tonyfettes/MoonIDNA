@@ -1,4 +1,5 @@
 /// Unicode Bidi_Class
+
 ///|
 pub enum BidiClass {
   L
@@ -27,14 +28,16 @@ pub enum BidiClass {
 }
 
 /// Bidi 类区间
+
 ///|
-pub struct BidiEntry{
+pub struct BidiEntry {
   start : Int
-  end   : Int
+  end : Int
   class : BidiClass
 }
 
 /// 按 start 升序的 Bidi 区间表
+
 ///|
 pub let bidi_table : Array[BidiEntry] = [
   { start: 0x0000, end: 0x0008, class: BidiClass::BN },

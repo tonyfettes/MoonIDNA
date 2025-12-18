@@ -1,0 +1,25 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "ZSeanYves/MoonIDNA/punycode"
+
+import(
+  "ZSeanYves/bufferutils"
+)
+
+// Values
+pub fn decode(StringView) -> Result[String, PunycodeError] raise @bufferutils.Utf8DecodeError
+
+pub fn encode(StringView) -> Result[String, PunycodeError] raise @bufferutils.Utf8DecodeError
+
+// Errors
+
+// Types and methods
+pub enum PunycodeError {
+  InvalidInput
+  Overflow
+  InvalidUtf8
+}
+
+// Type aliases
+
+// Traits
+

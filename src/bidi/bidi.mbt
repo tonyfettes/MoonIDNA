@@ -1,8 +1,8 @@
 // === 主检查逻辑（基于 RFC 5893 简化实现） ===
-/// 检查单个 label 是否满足 IDNA Bidi 规则。
-/// 返回 true 表示通过，false 表示违反规则。
 
 ///|
+/// 检查单个 label 是否满足 IDNA Bidi 规则。
+/// 返回 true 表示通过，false 表示违反规则。
 pub fn check_bidi_label(label : String) -> Bool {
   let chars = label.to_array()
   let len = chars.length()

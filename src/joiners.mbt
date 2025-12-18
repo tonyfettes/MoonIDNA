@@ -1,6 +1,5 @@
-/// RFC 5892 Appendix A：ContextJ 规则总入口。
-
 ///|
+/// RFC 5892 Appendix A：ContextJ 规则总入口。
 fn contextj_valid(cps : Array[Int]) -> Bool {
   let len = cps.length()
   if len == 0 {
@@ -38,10 +37,9 @@ fn contextj_valid(cps : Array[Int]) -> Bool {
   true
 }
 
+///|
 /// U+200C ZERO WIDTH NON-JOINER 的上下文检查：
 /// 允许两种情况：前一个字符是 Virama；匹配 (L/D) T* ZWNJ T* (R/D)。
-
-///|
 fn valid_zwnj(cps : Array[Int], idx : Int) -> Bool {
   if cps[idx] != 0x200C {
     return true
@@ -85,10 +83,9 @@ fn valid_zwnj(cps : Array[Int], idx : Int) -> Bool {
   false
 }
 
+///|
 /// U+200D ZERO WIDTH JOINER 的上下文检查：
 /// 仅允许前一个字符是 Virama。
-
-///|
 fn valid_zwj(cps : Array[Int], idx : Int) -> Bool {
   if cps[idx] != 0x200D {
     return true

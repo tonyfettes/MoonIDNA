@@ -1,6 +1,5 @@
-// --- 工具：检测末尾是否有 '.' ---
-
 ///|
+// --- 工具：检测末尾是否有 '.' ---
 fn has_trailing_dot(domain : StringView) -> Bool {
   let s_str = domain.to_string()
   let bs = @buf.string_to_utf8_bytes(s_str).to_array()
@@ -10,9 +9,8 @@ fn has_trailing_dot(domain : StringView) -> Bool {
   bs[bs.length() - 1].to_int() == 0x2E // '.'
 }
 
-// --- 工具：将域名拆成 labels（忽略末尾的 '.'，方便处理） ---
-
 ///|
+// --- 工具：将域名拆成 labels（忽略末尾的 '.'，方便处理） ---
 fn split_labels(
   domain : StringView,
 ) -> Array[String] raise @buf.Utf8DecodeError {
@@ -54,9 +52,9 @@ fn split_labels(
   }
   labels
 }
-// --- 工具：判断一个 label 是否全部 ASCII ---
 
 ///|
+// --- 工具：判断一个 label 是否全部 ASCII ---
 fn is_all_ascii(label : String) -> Bool {
   let bs = @buf.string_to_utf8_bytes(label).to_array()
   let mut i = 0
@@ -70,9 +68,8 @@ fn is_all_ascii(label : String) -> Bool {
   true
 }
 
-// --- 工具：用 '.' 把 labels 拼回域名字符串 ---
-
 ///|
+// --- 工具：用 '.' 把 labels 拼回域名字符串 ---
 fn join_labels(labels : Array[String]) -> String {
   let mut out = "".to_string()
   let mut i = 0
@@ -85,9 +82,9 @@ fn join_labels(labels : Array[String]) -> String {
   }
   out
 }
-// --- 工具：判断 label 是否以 xn-- 开头（不区分大小写） ---
 
 ///|
+// --- 工具：判断 label 是否以 xn-- 开头（不区分大小写） ---
 fn is_punycode_label(label : String) -> Bool {
   let bs = @buf.string_to_utf8_bytes(label).to_array()
   if bs.length() < 4 {
@@ -116,9 +113,8 @@ fn is_punycode_label(label : String) -> Bool {
   true
 }
 
-// --- 工具：取掉 xn-- 前缀后的 payload 字符串 ---
-
 ///|
+// --- 工具：取掉 xn-- 前缀后的 payload 字符串 ---
 fn punycode_payload(label : String) -> String raise @buf.Utf8DecodeError {
   let bs = @buf.string_to_utf8_bytes(label).to_array()
   let payload : Array[Byte] = []

@@ -44,14 +44,13 @@ fn lookup_mapping(cp : Int) -> (MappingStatus, Array[Int]) {
 
 // === 对外：基于 UTS #46 的完整映射 ===
 
+///|
 /// 基于 UTS #46 IdnaMappingTable 的 label 映射：
 /// Valid       -> 原样保留
 /// Ignored     -> 丢弃
 /// Mappe       -> 替换为 mapping 序列
 /// Deviation   -> transitional=true 时用 mapping，否则当 Valid
 /// Disallowed* -> 记录错误，当前实现下保留原字符（后续可收紧）
-
-///|
 fn map_label(
   label : String,
   transitional_processing? : Bool = false,

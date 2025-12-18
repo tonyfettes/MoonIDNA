@@ -31,29 +31,22 @@ const INT_MAX : Int = 0x7fffffff // 简单的整型上界，用于溢出保护
 // 把一个 Unicode label 编成 punycode label（不加 xn-- 前缀）
 
 ///|
-pub fn encode(
-  label : StringView,
-) -> Result[String, PunycodeError] raise @buf.Utf8DecodeError {
-  // 1. UTF-8 -> code points
-  let cps_res = utf8_to_codepoints(label)
-  let cps = match cps_res {
-    Ok(v) => v
-    Err(e) => return Err(e)
-  }
+pub fn encode(label : StringView) -> Result[String, PunycodeError] {
+  // Convert string directly to codepoints using to_array()
+  let chars = label.to_string().to_array()
+  let cps = chars.map(fn(c) { c.to_int() })
   let res = encode_codepoints(cps)
   res
 }
 // 把一个 punycode label 解码成 Unicode label（不处理 xn-- 前缀）
 
 ///|
-pub fn decode(
-  label : StringView,
-) -> Result[String, PunycodeError] raise @buf.Utf8DecodeError {
+pub fn decode(label : StringView) -> Result[String, PunycodeError] {
   let res = match decode_to_codepoints(label) {
     Ok(v) => v
     Err(e) => return Err(e)
   }
-  let s = codepoints_to_utf8(res)
+  let s = codepoints_to_string(res)
   s
 }
 
@@ -61,9 +54,7 @@ pub fn decode(
 // 内部使用：编码 code point 数组为 punycode 字符串
 
 ///|
-fn encode_codepoints(
-  cps : Array[Int],
-) -> Result[String, PunycodeError] raise @buf.Utf8DecodeError {
+fn encode_codepoints(cps : Array[Int]) -> Result[String, PunycodeError] {
   let input_len = cps.length()
   if input_len == 0 {
     return Ok("".to_string())
@@ -143,8 +134,7 @@ fn encode_codepoints(
     delta += 1
     n += 1
   }
-  let s = bytes_to_string(out_bytes)
-  s
+  Ok(bytes_to_ascii_string(out_bytes))
 }
 
 // 内部使用：从 punycode 字符串解码成 code point 数组
@@ -276,126 +266,39 @@ fn decode_digit(c : Int) -> Result[Int, PunycodeError] {
   }
 }
 
-// === UTF-8 与 code point 转换 ===
+// === String 与 code point 转换 ===
+// 直接使用 String::to_array() 和 Char::from_int() 避免 UTF-8 roundtrip
 
 ///|
-fn utf8_to_codepoints(s : StringView) -> Result[Array[Int], PunycodeError] {
-  let s_str = s.to_string()
-  let bs = @buf.string_to_utf8_bytes(s_str).to_array()
-  let cps : Array[Int] = []
-  let mut i = 0
-  while i < bs.length() {
-    let b0 = bs[i].to_int() & 0xFF
-    i += 1
-    if b0 < 0x80 {
-      cps.push(b0)
-    } else if (b0 & 0xE0) == 0xC0 {
-      if i >= bs.length() {
-        return Err(PunycodeError::InvalidUtf8)
-      }
-      let b1 = bs[i].to_int() & 0xFF
-      i += 1
-      if (b1 & 0xC0) != 0x80 {
-        return Err(PunycodeError::InvalidUtf8)
-      }
-      let cp = ((b0 & 0x1F) << 6) | (b1 & 0x3F)
-      if cp < 0x80 {
-        return Err(PunycodeError::InvalidUtf8) // overlong
-      }
-      cps.push(cp)
-    } else if (b0 & 0xF0) == 0xE0 {
-      if i + 1 >= bs.length() {
-        return Err(PunycodeError::InvalidUtf8)
-      }
-      let b1 = bs[i].to_int() & 0xFF
-      let b2 = bs[i + 1].to_int() & 0xFF
-      i += 2
-      if (b1 & 0xC0) != 0x80 || (b2 & 0xC0) != 0x80 {
-        return Err(PunycodeError::InvalidUtf8)
-      }
-      let cp = ((b0 & 0x0F) << 12) | ((b1 & 0x3F) << 6) | (b2 & 0x3F)
-      if cp < 0x800 {
-        return Err(PunycodeError::InvalidUtf8)
-      }
-      if cp >= 0xD800 && cp <= 0xDFFF {
-        return Err(PunycodeError::InvalidUtf8)
-      }
-      cps.push(cp)
-    } else if (b0 & 0xF8) == 0xF0 {
-      if i + 2 >= bs.length() {
-        return Err(PunycodeError::InvalidUtf8)
-      }
-      let b1 = bs[i].to_int() & 0xFF
-      let b2 = bs[i + 1].to_int() & 0xFF
-      let b3 = bs[i + 2].to_int() & 0xFF
-      i += 3
-      if (b1 & 0xC0) != 0x80 || (b2 & 0xC0) != 0x80 || (b3 & 0xC0) != 0x80 {
-        return Err(PunycodeError::InvalidUtf8)
-      }
-      let cp = ((b0 & 0x07) << 18) |
-        ((b1 & 0x3F) << 12) |
-        ((b2 & 0x3F) << 6) |
-        (b3 & 0x3F)
-      if cp < 0x10000 || cp > 0x10FFFF {
-        return Err(PunycodeError::InvalidUtf8)
-      }
-      cps.push(cp)
-    } else {
-      return Err(PunycodeError::InvalidUtf8)
-    }
-  }
-  Ok(cps)
-}
-
-///|
-fn codepoints_to_utf8(
-  cps : Array[Int],
-) -> Result[String, PunycodeError] raise @buf.Utf8DecodeError {
-  let bs : Array[Byte] = []
+fn codepoints_to_string(cps : Array[Int]) -> Result[String, PunycodeError] {
+  let chars : Array[Char] = []
   let mut i = 0
   while i < cps.length() {
     let cp = cps[i]
     if cp < 0 || cp > 0x10FFFF {
       return Err(PunycodeError::InvalidInput)
     }
-    if cp < 0x80 {
-      bs.push(cp.to_byte())
-    } else if cp < 0x800 {
-      bs.push((0xC0 | (cp >> 6)).to_byte())
-      bs.push((0x80 | (cp & 0x3F)).to_byte())
-    } else if cp < 0x10000 {
-      if cp >= 0xD800 && cp <= 0xDFFF {
-        return Err(PunycodeError::InvalidInput)
-      }
-      bs.push((0xE0 | (cp >> 12)).to_byte())
-      bs.push((0x80 | ((cp >> 6) & 0x3F)).to_byte())
-      bs.push((0x80 | (cp & 0x3F)).to_byte())
-    } else {
-      bs.push((0xF0 | (cp >> 18)).to_byte())
-      bs.push((0x80 | ((cp >> 12) & 0x3F)).to_byte())
-      bs.push((0x80 | ((cp >> 6) & 0x3F)).to_byte())
-      bs.push((0x80 | (cp & 0x3F)).to_byte())
+    if cp >= 0xD800 && cp <= 0xDFFF {
+      return Err(PunycodeError::InvalidInput)
     }
+    chars.push(cp.unsafe_to_char())
     i += 1
   }
-  let s = bytes_to_string(bs)
-  s
+  Ok(String::from_array(chars))
 }
 
-// 把 ASCII/UTF-8 字符串直接转为 bytes（UTF-8）
+// 把 ASCII 字符串直接转为 bytes
 
 ///|
 fn string_to_ascii_bytes(s : StringView) -> Array[Byte] {
-  let s_str = s.to_string()
-  @buf.string_to_utf8_bytes(s_str).to_array()
+  let chars = s.to_string().to_array()
+  chars.map(fn(c) { c.to_int().to_byte() })
 }
 
-// bytes -> String（假设是合法 UTF-8）
+// bytes -> ASCII String（假设是合法 ASCII）
 
 ///|
-fn bytes_to_string(
-  bs : Array[Byte],
-) -> Result[String, PunycodeError] raise @buf.Utf8DecodeError {
-  let s = @buf.utf8_bytes_to_string(Bytes::from_array(bs))
-  Ok(s)
+fn bytes_to_ascii_string(bs : Array[Byte]) -> String {
+  let chars = bs.map(fn(b) { b.to_int().unsafe_to_char() })
+  String::from_array(chars)
 }

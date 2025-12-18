@@ -106,47 +106,53 @@ test "adapt - large delta" {
 }
 
 ///|
-/// Test utf8_to_codepoints function
-test "utf8_to_codepoints - ASCII" {
-  let result = utf8_to_codepoints("hello")
-  inspect(result, content="Ok([104, 101, 108, 108, 111])")
+/// Test direct string to codepoints conversion
+test "string to codepoints - ASCII" {
+  let chars = "hello".to_array()
+  let cps = chars.map(fn(c) { c.to_int() })
+  inspect(cps, content="[104, 101, 108, 108, 111]")
 }
 
 ///|
-test "utf8_to_codepoints - 2-byte UTF-8" {
-  let result = utf8_to_codepoints("café")
-  inspect(result, content="Ok([99, 97, 102, 233])")
+test "string to codepoints - 2-byte UTF-8" {
+  let chars = "café".to_array()
+  let cps = chars.map(fn(c) { c.to_int() })
+  inspect(cps, content="[99, 97, 102, 233]")
 }
 
 ///|
-test "utf8_to_codepoints - 3-byte UTF-8" {
-  let result = utf8_to_codepoints("\u{4E2D}\u{6587}")
-  inspect(result, content="Ok([20013, 25991])")
+test "string to codepoints - 3-byte UTF-8" {
+  let chars = "\u{4E2D}\u{6587}".to_array()
+  let cps = chars.map(fn(c) { c.to_int() })
+  inspect(cps, content="[20013, 25991]")
 }
 
 ///|
-test "utf8_to_codepoints - 4-byte UTF-8" {
-  let result = utf8_to_codepoints("\u{1F600}")
-  inspect(result, content="Ok([128512])")
+test "string to codepoints - 4-byte UTF-8" {
+  let chars = "\u{1F600}".to_array()
+  let cps = chars.map(fn(c) { c.to_int() })
+  inspect(cps, content="[128512]")
 }
 
 ///|
-test "utf8_to_codepoints - mixed" {
-  let result = utf8_to_codepoints("a\u{4E2D}b")
-  inspect(result, content="Ok([97, 20013, 98])")
+test "string to codepoints - mixed" {
+  let chars = "a\u{4E2D}b".to_array()
+  let cps = chars.map(fn(c) { c.to_int() })
+  inspect(cps, content="[97, 20013, 98]")
 }
 
 ///|
-test "utf8_to_codepoints - empty" {
-  let result = utf8_to_codepoints("")
-  inspect(result, content="Ok([])")
+test "string to codepoints - empty" {
+  let chars = "".to_array()
+  let cps = chars.map(fn(c) { c.to_int() })
+  inspect(cps, content="[]")
 }
 
 ///|
-/// Test codepoints_to_utf8 function
-test "codepoints_to_utf8 - ASCII" {
+/// Test codepoints_to_string function
+test "codepoints_to_string - ASCII" {
   let cps = [104, 101, 108, 108, 111]
-  let result = codepoints_to_utf8(cps)
+  let result = codepoints_to_string(cps)
   inspect(
     result,
     content=(
@@ -156,9 +162,9 @@ test "codepoints_to_utf8 - ASCII" {
 }
 
 ///|
-test "codepoints_to_utf8 - 2-byte UTF-8" {
+test "codepoints_to_string - 2-byte UTF-8" {
   let cps = [99, 97, 102, 233]
-  let result = codepoints_to_utf8(cps)
+  let result = codepoints_to_string(cps)
   inspect(
     result,
     content=(
@@ -168,9 +174,9 @@ test "codepoints_to_utf8 - 2-byte UTF-8" {
 }
 
 ///|
-test "codepoints_to_utf8 - 3-byte UTF-8" {
+test "codepoints_to_string - 3-byte UTF-8" {
   let cps = [20013, 25991]
-  let result = codepoints_to_utf8(cps)
+  let result = codepoints_to_string(cps)
   inspect(
     result,
     content=(
@@ -180,9 +186,9 @@ test "codepoints_to_utf8 - 3-byte UTF-8" {
 }
 
 ///|
-test "codepoints_to_utf8 - 4-byte UTF-8" {
+test "codepoints_to_string - 4-byte UTF-8" {
   let cps = [128512]
-  let result = codepoints_to_utf8(cps)
+  let result = codepoints_to_string(cps)
   inspect(
     result,
     content=(
@@ -192,9 +198,9 @@ test "codepoints_to_utf8 - 4-byte UTF-8" {
 }
 
 ///|
-test "codepoints_to_utf8 - mixed" {
+test "codepoints_to_string - mixed" {
   let cps = [97, 20013, 98]
-  let result = codepoints_to_utf8(cps)
+  let result = codepoints_to_string(cps)
   inspect(
     result,
     content=(
@@ -204,9 +210,9 @@ test "codepoints_to_utf8 - mixed" {
 }
 
 ///|
-test "codepoints_to_utf8 - empty" {
+test "codepoints_to_string - empty" {
   let cps : Array[Int] = []
-  let result = codepoints_to_utf8(cps)
+  let result = codepoints_to_string(cps)
   inspect(
     result,
     content=(
@@ -216,23 +222,23 @@ test "codepoints_to_utf8 - empty" {
 }
 
 ///|
-test "codepoints_to_utf8 - invalid codepoint negative" {
+test "codepoints_to_string - invalid codepoint negative" {
   let cps = [-1]
-  let result = codepoints_to_utf8(cps)
+  let result = codepoints_to_string(cps)
   inspect(result, content="Err(InvalidInput)")
 }
 
 ///|
-test "codepoints_to_utf8 - invalid codepoint too large" {
+test "codepoints_to_string - invalid codepoint too large" {
   let cps = [0x110000]
-  let result = codepoints_to_utf8(cps)
+  let result = codepoints_to_string(cps)
   inspect(result, content="Err(InvalidInput)")
 }
 
 ///|
-test "codepoints_to_utf8 - surrogate pair" {
+test "codepoints_to_string - surrogate pair" {
   let cps = [0xD800]
-  let result = codepoints_to_utf8(cps)
+  let result = codepoints_to_string(cps)
   inspect(result, content="Err(InvalidInput)")
 }
 
@@ -371,30 +377,30 @@ test "string_to_ascii_bytes - ASCII" {
 ///|
 test "string_to_ascii_bytes - UTF-8" {
   let result = string_to_ascii_bytes("\u{4E2D}")
-  inspect(result.length(), content="3")
+  inspect(result.length(), content="1")
 }
 
 ///|
-/// Test bytes_to_string function
-test "bytes_to_string - ASCII" {
+/// Test bytes_to_ascii_string function
+test "bytes_to_ascii_string - ASCII" {
   let bytes = [b'a', b'b', b'c']
-  let result = bytes_to_string(bytes)
+  let result = bytes_to_ascii_string(bytes)
   inspect(
     result,
     content=(
-      #|Ok("abc")
+      #|abc
     ),
   )
 }
 
 ///|
-test "bytes_to_string - empty" {
+test "bytes_to_ascii_string - empty" {
   let bytes : Array[Byte] = []
-  let result = bytes_to_string(bytes)
+  let result = bytes_to_ascii_string(bytes)
   inspect(
     result,
     content=(
-      #|Ok("")
+      #|
     ),
   )
 }
@@ -403,55 +409,43 @@ test "bytes_to_string - empty" {
 /// Test round-trip codepoints conversion
 test "round-trip codepoints - ASCII" {
   let original = "hello"
-  let cps_result = utf8_to_codepoints(original)
-  match cps_result {
-    Ok(cps) => {
-      let back = codepoints_to_utf8(cps)
-      inspect(
-        back,
-        content=(
-          #|Ok("hello")
-        ),
-      )
-    }
-    Err(_) => @test.fail("utf8_to_codepoints failed")
-  }
+  let chars = original.to_array()
+  let cps = chars.map(fn(c) { c.to_int() })
+  let back = codepoints_to_string(cps)
+  inspect(
+    back,
+    content=(
+      #|Ok("hello")
+    ),
+  )
 }
 
 ///|
 test "round-trip codepoints - Unicode" {
   let original = "\u{4E2D}\u{6587}"
-  let cps_result = utf8_to_codepoints(original)
-  match cps_result {
-    Ok(cps) => {
-      let back = codepoints_to_utf8(cps)
-      inspect(
-        back,
-        content=(
-          #|Ok("中文")
-        ),
-      )
-    }
-    Err(_) => @test.fail("utf8_to_codepoints failed")
-  }
+  let chars = original.to_array()
+  let cps = chars.map(fn(c) { c.to_int() })
+  let back = codepoints_to_string(cps)
+  inspect(
+    back,
+    content=(
+      #|Ok("中文")
+    ),
+  )
 }
 
 ///|
 test "round-trip codepoints - emoji" {
   let original = "\u{1F600}"
-  let cps_result = utf8_to_codepoints(original)
-  match cps_result {
-    Ok(cps) => {
-      let back = codepoints_to_utf8(cps)
-      inspect(
-        back,
-        content=(
-          #|Ok("😀")
-        ),
-      )
-    }
-    Err(_) => @test.fail("utf8_to_codepoints failed")
-  }
+  let chars = original.to_array()
+  let cps = chars.map(fn(c) { c.to_int() })
+  let back = codepoints_to_string(cps)
+  inspect(
+    back,
+    content=(
+      #|Ok("😀")
+    ),
+  )
 }
 
 ///|

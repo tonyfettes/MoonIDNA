@@ -3,7 +3,7 @@
 ///|
 fn validate_std3(
   label : String,
-  use_std3_ascii_rules? : Bool = false
+  use_std3_ascii_rules? : Bool = false,
 ) -> IdnaErrorList {
   let errs : IdnaErrorList = []
   if !use_std3_ascii_rules {
@@ -33,7 +33,10 @@ fn validate_std3(
 // --- 连字符规则检查（check_hyphens） ---
 
 ///|
-fn validate_hyphens(label : String, check_hyphens? : Bool = true) -> IdnaErrorList {
+fn validate_hyphens(
+  label : String,
+  check_hyphens? : Bool = true,
+) -> IdnaErrorList {
   let errs : IdnaErrorList = []
   if !check_hyphens {
     return errs
@@ -75,7 +78,7 @@ fn validate_hyphens(label : String, check_hyphens? : Bool = true) -> IdnaErrorLi
 ///|
 fn validate_dns_length(
   domain : String,
-  verify_dns_length? : Bool = true
+  verify_dns_length? : Bool = true,
 ) -> IdnaErrorList {
   let errs : IdnaErrorList = []
   if !verify_dns_length {
@@ -131,7 +134,10 @@ fn validate_bidi(label : String, check_bidi? : Bool = true) -> IdnaErrorList {
 // --- 单个 joiners 的 Bidi 检查封装 ---
 
 ///|
-fn validate_joiners(label : String, check_joiners? : Bool = true) -> IdnaErrorList {
+fn validate_joiners(
+  label : String,
+  check_joiners? : Bool = true,
+) -> IdnaErrorList {
   let errs : IdnaErrorList = []
   if !check_joiners {
     return errs
@@ -158,7 +164,7 @@ fn validate_label_all(
   check_hyphens? : Bool = true,
   check_bidi? : Bool = true,
   check_joiners? : Bool = true,
-  use_std3_ascii_rules? : Bool = false
+  use_std3_ascii_rules? : Bool = false,
 ) -> IdnaErrorList {
   let all : IdnaErrorList = []
   let e1 = validate_std3(label, use_std3_ascii_rules~)
@@ -191,7 +197,7 @@ fn validate_label_all(
 ///|
 fn validate_domain_all(
   domain : String,
-  verify_dns_length? : Bool = true
+  verify_dns_length? : Bool = true,
 ) -> IdnaErrorList {
   let all : IdnaErrorList = []
   let e = validate_dns_length(domain, verify_dns_length~)

@@ -55,7 +55,7 @@ fn lookup_mapping(cp : Int) -> (MappingStatus, Array[Int]) {
 fn map_label(
   label : String,
   transitional_processing? : Bool = false,
-  use_std3_ascii_rules? : Bool = false
+  use_std3_ascii_rules? : Bool = false,
 ) -> MappedLabel {
   let chars = label.to_array()
   let out_chars : Array[Char] = []

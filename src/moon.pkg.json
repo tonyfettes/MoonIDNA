@@ -7,6 +7,10 @@
         {
             "path": "ZSeanYves/MoonIDNA/punycode",
             "alias": "punycode"
+        },
+        {
+            "path": "ZSeanYves/MoonIDNA/bidi",
+            "alias": "bidi"
         }
     ]
 }

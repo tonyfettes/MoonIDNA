@@ -1,24 +1,16 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "ZSeanYves/MoonIDNA/src"
+package "ZSeanYves/MoonIDNA"
 
 import(
   "ZSeanYves/bufferutils"
 )
 
 // Values
-pub let bidi_table : Array[BidiEntry]
-
-pub fn check_bidi_domain(Array[String]) -> Array[IdnaError]
-
 pub fn check_dns_length(String, IdnaOptions) -> Array[IdnaError]
 
 pub fn check_hyphens(String, IdnaOptions) -> Array[IdnaError]
 
 pub fn check_std3(String, IdnaOptions) -> Array[IdnaError]
-
-pub fn decode(StringView) -> Result[String, PunycodeError] raise @bufferutils.Utf8DecodeError
-
-pub fn encode(StringView) -> Result[String, PunycodeError] raise @bufferutils.Utf8DecodeError
 
 pub fn is_virama(Int) -> Bool
 
@@ -61,38 +53,6 @@ pub let virama_table : Array[Int]
 // Errors
 
 // Types and methods
-pub enum BidiClass {
-  L
-  R
-  AL
-  EN
-  ES
-  ET
-  AN
-  CS
-  NSM
-  BN
-  ON
-  LRE
-  LRO
-  RLE
-  RLO
-  PDF
-  LRI
-  RLI
-  FSI
-  PDI
-  S
-  WS
-  B
-}
-
-pub struct BidiEntry {
-  start : Int
-  end : Int
-  class : BidiClass
-}
-
 pub enum IdnaError {
   InvalidCharacter
   InvalidHyphenPosition
@@ -148,12 +108,6 @@ pub enum MappingStatus {
   Disallowed
   DisallowedStd3Valid
   DisallowedStd3Mapped
-}
-
-pub enum PunycodeError {
-  InvalidInput
-  Overflow
-  InvalidUtf8
 }
 
 // Type aliases

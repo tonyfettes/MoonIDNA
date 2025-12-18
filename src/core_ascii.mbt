@@ -1,4 +1,5 @@
 // === 对外：ToASCII 核心逻辑 ===
+
 ///|
 pub fn to_ascii_core(
   domain : StringView,
@@ -16,7 +17,6 @@ pub fn to_ascii_core(
       i += 1
       continue
     }
-
     let mapped = map_label(raw_lbl, opts)
     let lbl = mapped.value
     let label_errs = validate_label_all(lbl, opts)
@@ -35,8 +35,7 @@ pub fn to_ascii_core(
           s = s + v
           s
         }
-        Err(_) =>
-          lbl.to_string()
+        Err(_) => lbl.to_string()
       }
       out_labels.push(ascii_label)
     }
@@ -54,7 +53,6 @@ pub fn to_ascii_core(
     all_errs.push(dns_errs[k])
     k += 1
   }
-
   let _ = all_errs
   Ok(result)
 }

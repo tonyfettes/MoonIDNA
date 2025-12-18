@@ -1,4 +1,5 @@
 // IDNA 行为配置
+
 ///|
 pub(all) struct IdnaOptions {
   mut _check_hyphens : Bool
@@ -11,6 +12,7 @@ pub(all) struct IdnaOptions {
 }
 
 // 一些方便构造的辅助函数
+
 ///|
 pub fn options_default() -> IdnaOptions {
   // 对齐 WHATWG URL 解析的大致行为：非过渡模式、校验长度
@@ -27,6 +29,7 @@ pub fn options_default() -> IdnaOptions {
 }
 
 // 更严格的“注册场景”配置（未来如果需要）
+
 ///|
 pub fn options_strict_registration() -> IdnaOptions {
   let a = {
@@ -55,5 +58,3 @@ pub fn options_transitional() -> IdnaOptions {
   }
   a
 }
-
-

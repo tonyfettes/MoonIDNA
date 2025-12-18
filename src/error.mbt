@@ -9,4 +9,5 @@ pub enum IdnaError {
   DomainTooLong
 }
 
+///|
 pub type IdnaErrorList = Array[IdnaError]

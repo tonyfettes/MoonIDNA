@@ -1,19 +1,39 @@
 // --- Punycode 常量（RFC 3492） ---
+///|
 const BASE : Int = 36
+
+///|
 const TMIN : Int = 1
+
+///|
 const TMAX : Int = 26
+
+///|
 const SKEW : Int = 38
+
+///|
 const DAMP : Int = 700
+
+///|
 const INITIAL_BIAS : Int = 72
-const INITIAL_N : Int = 0x80        // 128
-const DELIMITER : Int = 0x2D        // '-'
-const INT_MAX : Int = 0x7fffffff    // 简单的整型上界，用于溢出保护
+
+///|
+const INITIAL_N : Int = 0x80 // 128
+
+///|
+const DELIMITER : Int = 0x2D // '-'
+
+///|
+const INT_MAX : Int = 0x7fffffff // 简单的整型上界，用于溢出保护
 
 // === 对外 API ===
 // 把一个 Unicode label 编成 punycode label（不加 xn-- 前缀）
+
 ///|
-pub fn encode(label : StringView) -> Result[String, PunycodeError] raise @buf.Utf8DecodeError {
-// 1. UTF-8 -> code points
+pub fn encode(
+  label : StringView,
+) -> Result[String, PunycodeError] raise @buf.Utf8DecodeError {
+  // 1. UTF-8 -> code points
   let cps_res = utf8_to_codepoints(label)
   let cps = match cps_res {
     Ok(v) => v
@@ -23,6 +43,7 @@ pub fn encode(label : StringView) -> Result[String, PunycodeError] raise @buf.Ut
   res
 }
 // 把一个 punycode label 解码成 Unicode label（不处理 xn-- 前缀）
+
 ///|
 pub fn decode(
   label : StringView,
@@ -37,6 +58,7 @@ pub fn decode(
 
 // === 核心：编码 / 解码算法 ===
 // 内部使用：编码 code point 数组为 punycode 字符串
+
 ///|
 fn encode_codepoints(
   cps : Array[Int],
@@ -125,6 +147,7 @@ fn encode_codepoints(
 }
 
 // 内部使用：从 punycode 字符串解码成 code point 数组
+
 ///|
 fn decode_to_codepoints(
   label : StringView,
@@ -198,6 +221,7 @@ fn decode_to_codepoints(
 }
 
 // === Bootstring 辅助函数 ===
+
 ///|
 fn threshold(k : Int, bias : Int) -> Int {
   if k <= bias + TMIN {
@@ -218,22 +242,21 @@ fn adapt(delta : Int, numpoints : Int, first_time : Bool) -> Int {
   } else {
     d = d / 2
   }
-
   d = d + d / numpoints
   let mut k : Int = 0
-  while d > ((BASE - TMIN) * TMAX) / 2 {
+  while d > (BASE - TMIN) * TMAX / 2 {
     d = d / (BASE - TMIN)
     k += BASE
   }
-  k + (((BASE - TMIN + 1) * d) / (d + SKEW))
+  k + (BASE - TMIN + 1) * d / (d + SKEW)
 }
 
 ///|
 fn encode_digit(d : Int) -> Result[Int, PunycodeError] {
   if d >= 0 && d < 26 {
-    Ok(0x61 + d)         // 'a'..'z'
+    Ok(0x61 + d) // 'a'..'z'
   } else if d >= 26 && d < 36 {
-    Ok(0x30 + (d - 26))  // '0'..'9'
+    Ok(0x30 + (d - 26)) // '0'..'9'
   } else {
     Err(PunycodeError::InvalidInput)
   }
@@ -242,17 +265,18 @@ fn encode_digit(d : Int) -> Result[Int, PunycodeError] {
 ///|
 fn decode_digit(c : Int) -> Result[Int, PunycodeError] {
   if c >= 0x30 && c <= 0x39 {
-    Ok(c - 0x30 + 26)          // '0'..'9'
+    Ok(c - 0x30 + 26) // '0'..'9'
   } else if c >= 0x41 && c <= 0x5A {
-    Ok(c - 0x41)               // 'A'..'Z'
+    Ok(c - 0x41) // 'A'..'Z'
   } else if c >= 0x61 && c <= 0x7A {
-    Ok(c - 0x61)               // 'a'..'z'
+    Ok(c - 0x61) // 'a'..'z'
   } else {
     Err(PunycodeError::InvalidInput)
   }
 }
 
 // === UTF-8 与 code point 转换 ===
+
 ///|
 fn utf8_to_codepoints(s : StringView) -> Result[Array[Int], PunycodeError] {
   let s_str = s.to_string()
@@ -323,16 +347,16 @@ fn utf8_to_codepoints(s : StringView) -> Result[Array[Int], PunycodeError] {
 }
 
 ///|
-fn codepoints_to_utf8(cps : Array[Int]) -> Result[String, PunycodeError] raise @buf.Utf8DecodeError{
+fn codepoints_to_utf8(
+  cps : Array[Int],
+) -> Result[String, PunycodeError] raise @buf.Utf8DecodeError {
   let bs : Array[Byte] = []
-
   let mut i = 0
   while i < cps.length() {
     let cp = cps[i]
     if cp < 0 || cp > 0x10FFFF {
       return Err(PunycodeError::InvalidInput)
     }
-
     if cp < 0x80 {
       bs.push(cp.to_byte())
     } else if cp < 0x800 {
@@ -353,12 +377,12 @@ fn codepoints_to_utf8(cps : Array[Int]) -> Result[String, PunycodeError] raise @
     }
     i += 1
   }
-
   let s = bytes_to_string(bs)
   s
 }
 
 // 把 ASCII/UTF-8 字符串直接转为 bytes（UTF-8）
+
 ///|
 fn string_to_ascii_bytes(s : StringView) -> Array[Byte] {
   let s_str = s.to_string()
@@ -366,8 +390,11 @@ fn string_to_ascii_bytes(s : StringView) -> Array[Byte] {
 }
 
 // bytes -> String（假设是合法 UTF-8）
+
 ///|
-fn bytes_to_string(bs : Array[Byte]) -> Result[String, PunycodeError] raise @buf.Utf8DecodeError {
+fn bytes_to_string(
+  bs : Array[Byte],
+) -> Result[String, PunycodeError] raise @buf.Utf8DecodeError {
   let s = @buf.utf8_bytes_to_string(Bytes::from_array(bs))
   Ok(s)
 }

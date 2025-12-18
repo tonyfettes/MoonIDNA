@@ -1,4 +1,5 @@
 // === 映射结果结构 ===
+
 ///|
 pub struct MappedLabel {
   value : String
@@ -6,6 +7,8 @@ pub struct MappedLabel {
 }
 
 // === 内部：查表 ===
+
+///|
 /// 在 mapping_table 中查找给定 codepoint 的映射区间。
 /// 返回 (status, mapping_seq)，若未命中则视为 Valid 无映射。
 fn lookup_mapping(cp : Int) -> (MappingStatus, Array[Int]) {
@@ -47,6 +50,7 @@ fn lookup_mapping(cp : Int) -> (MappingStatus, Array[Int]) {
 /// Mappe       -> 替换为 mapping 序列
 /// Deviation   -> transitional=true 时用 mapping，否则当 Valid
 /// Disallowed* -> 记录错误，当前实现下保留原字符（后续可收紧）
+
 ///|
 pub fn map_label(label : String, opts : IdnaOptions) -> MappedLabel {
   let chars = label.to_array()

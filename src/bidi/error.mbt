@@ -1,4 +1,4 @@
 ///|
-pub enum BidiError {
+priv enum BidiError {
   BidiRuleFailed
 }

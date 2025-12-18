@@ -1,7 +1,7 @@
 /// Unicode Bidi_Class
 
 ///|
-pub enum BidiClass {
+priv enum BidiClass {
   L
   R
   AL
@@ -30,7 +30,7 @@ pub enum BidiClass {
 /// Bidi 类区间
 
 ///|
-pub struct BidiEntry {
+priv struct BidiEntry {
   start : Int
   end : Int
   class : BidiClass
@@ -39,7 +39,7 @@ pub struct BidiEntry {
 /// 按 start 升序的 Bidi 区间表
 
 ///|
-pub let bidi_table : Array[BidiEntry] = [
+let bidi_table : Array[BidiEntry] = [
   { start: 0x0000, end: 0x0008, class: BidiClass::BN },
   { start: 0x0009, end: 0x0009, class: BidiClass::S },
   { start: 0x000A, end: 0x000A, class: BidiClass::B },

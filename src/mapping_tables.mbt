@@ -1,7 +1,7 @@
 /// UTS #46 映射状态
 
 ///|
-pub enum MappingStatus {
+priv enum MappingStatus {
   Valid
   Ignored
   Mapped
@@ -14,7 +14,7 @@ pub enum MappingStatus {
 /// 单条映射区间
 
 ///|
-pub struct MappingEntry {
+priv struct MappingEntry {
   start : Int
   end : Int
   status : MappingStatus
@@ -22,7 +22,7 @@ pub struct MappingEntry {
 }
 
 ///|
-pub let mapping_table : Array[MappingEntry] = [
+let mapping_table : Array[MappingEntry] = [
   {
     start: 0x0000,
     end: 0x002C,

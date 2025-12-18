@@ -1,7 +1,7 @@
 // === 对外：ToUnicode 核心逻辑 ===
 
 ///|
-pub fn to_unicode_core(
+fn to_unicode_core(
   domain : StringView,
   opts : IdnaOptions,
 ) -> Result[String, IdnaErrorList] raise @buf.Utf8DecodeError {

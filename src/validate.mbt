@@ -1,7 +1,7 @@
 // --- STD3 规则检查（只在 _use_std3_ascii_rules == true 时启用） ---
 
 ///|
-pub fn check_std3(label : String, opts : IdnaOptions) -> IdnaErrorList {
+fn check_std3(label : String, opts : IdnaOptions) -> IdnaErrorList {
   let errs : IdnaErrorList = []
   if !opts._use_std3_ascii_rules {
     return errs
@@ -30,7 +30,7 @@ pub fn check_std3(label : String, opts : IdnaOptions) -> IdnaErrorList {
 // --- 连字符规则检查（_check_hyphens） ---
 
 ///|
-pub fn check_hyphens(label : String, opts : IdnaOptions) -> IdnaErrorList {
+fn check_hyphens(label : String, opts : IdnaOptions) -> IdnaErrorList {
   let errs : IdnaErrorList = []
   if !opts._check_hyphens {
     return errs
@@ -70,7 +70,7 @@ pub fn check_hyphens(label : String, opts : IdnaOptions) -> IdnaErrorList {
 // --- DNS 长度检查（_verify_dns_length） ---
 
 ///|
-pub fn check_dns_length(domain : String, opts : IdnaOptions) -> IdnaErrorList {
+fn check_dns_length(domain : String, opts : IdnaOptions) -> IdnaErrorList {
   let errs : IdnaErrorList = []
   if !opts._verify_dns_length {
     return errs
@@ -147,7 +147,7 @@ fn check_joiners(label : String, opts : IdnaOptions) -> IdnaErrorList {
 }
 
 ///|
-pub fn validate_label_all(label : String, opts : IdnaOptions) -> IdnaErrorList {
+fn validate_label_all(label : String, opts : IdnaOptions) -> IdnaErrorList {
   let all : IdnaErrorList = []
   let e1 = check_std3(label, opts)
   let mut i = 0
@@ -177,10 +177,7 @@ pub fn validate_label_all(label : String, opts : IdnaOptions) -> IdnaErrorList {
 }
 
 ///|
-pub fn validate_domain_all(
-  domain : String,
-  opts : IdnaOptions,
-) -> IdnaErrorList {
+fn validate_domain_all(domain : String, opts : IdnaOptions) -> IdnaErrorList {
   let all : IdnaErrorList = []
   let e = check_dns_length(domain, opts)
   let mut i = 0

@@ -1,7 +1,7 @@
 // === 映射结果结构 ===
 
 ///|
-pub struct MappedLabel {
+priv struct MappedLabel {
   value : String
   errors : IdnaErrorList
 }
@@ -52,7 +52,7 @@ fn lookup_mapping(cp : Int) -> (MappingStatus, Array[Int]) {
 /// Disallowed* -> 记录错误，当前实现下保留原字符（后续可收紧）
 
 ///|
-pub fn map_label(label : String, opts : IdnaOptions) -> MappedLabel {
+fn map_label(label : String, opts : IdnaOptions) -> MappedLabel {
   let chars = label.to_array()
   let out_chars : Array[Char] = []
   let errs : IdnaErrorList = []

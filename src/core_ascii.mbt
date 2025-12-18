@@ -1,7 +1,7 @@
 // === 对外：ToASCII 核心逻辑 ===
 
 ///|
-pub fn to_ascii_core(
+fn to_ascii_core(
   domain : StringView,
   opts : IdnaOptions,
 ) -> Result[String, IdnaErrorList] raise @buf.Utf8DecodeError {

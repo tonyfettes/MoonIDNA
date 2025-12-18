@@ -1,5 +1,5 @@
 ///|
-pub enum JoiningType {
+priv enum JoiningType {
   U // Non_Joining or unknown
   L // Left_Joining
   R // Right_Joining
@@ -9,14 +9,14 @@ pub enum JoiningType {
 }
 
 ///|
-pub struct JoiningEntry {
+priv struct JoiningEntry {
   start : Int
   end : Int
   class : JoiningType
 }
 
 ///|
-pub let joining_table : Array[JoiningEntry] = [
+let joining_table : Array[JoiningEntry] = [
   { start: 0xAD, end: 0xAD, class: JoiningType::T },
   { start: 0x300, end: 0x36F, class: JoiningType::T },
   { start: 0x483, end: 0x487, class: JoiningType::T },
@@ -562,7 +562,7 @@ pub let joining_table : Array[JoiningEntry] = [
 ]
 
 ///|
-pub let virama_table : Array[Int] = [
+let virama_table : Array[Int] = [
   0x94D, 0x9CD, 0xA4D, 0xACD, 0xB4D, 0xBCD, 0xC4D, 0xCCD, 0xD3B, 0xD3C, 0xD4D, 0xDCA,
   0xE3A, 0xEBA, 0xF84, 0x1039, 0x103A, 0x1714, 0x1715, 0x1734, 0x17D2, 0x1A60, 0x1B44,
   0x1BAA, 0x1BAB, 0x1BF2, 0x1BF3, 0x2D7F, 0xA806, 0xA82C, 0xA8C4, 0xA953, 0xA9C0,
@@ -573,7 +573,7 @@ pub let virama_table : Array[Int] = [
 ]
 
 ///|
-pub fn joining_type_of(cp : Int) -> JoiningType {
+fn joining_type_of(cp : Int) -> JoiningType {
   let mut lo = 0
   let mut hi = joining_table.length()
   while lo < hi {
@@ -591,7 +591,7 @@ pub fn joining_type_of(cp : Int) -> JoiningType {
 }
 
 ///|
-pub fn is_virama(cp : Int) -> Bool {
+fn is_virama(cp : Int) -> Bool {
   let mut lo = 0
   let mut hi = virama_table.length()
   while lo < hi {

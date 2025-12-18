@@ -2,48 +2,11 @@
 package "ZSeanYves/MoonIDNA/bidi"
 
 // Values
-pub let bidi_table : Array[BidiEntry]
-
 pub fn check_bidi_label(String) -> Bool
 
 // Errors
 
 // Types and methods
-pub enum BidiClass {
-  L
-  R
-  AL
-  EN
-  ES
-  ET
-  AN
-  CS
-  NSM
-  BN
-  ON
-  LRE
-  LRO
-  RLE
-  RLO
-  PDF
-  LRI
-  RLI
-  FSI
-  PDI
-  S
-  WS
-  B
-}
-
-pub struct BidiEntry {
-  start : Int
-  end : Int
-  class : BidiClass
-}
-
-pub enum BidiError {
-  BidiRuleFailed
-}
 
 // Type aliases
 

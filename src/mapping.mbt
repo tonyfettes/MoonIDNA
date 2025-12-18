@@ -52,7 +52,11 @@ fn lookup_mapping(cp : Int) -> (MappingStatus, Array[Int]) {
 /// Disallowed* -> 记录错误，当前实现下保留原字符（后续可收紧）
 
 ///|
-fn map_label(label : String, opts : IdnaOptions) -> MappedLabel {
+fn map_label(
+  label : String,
+  transitional_processing? : Bool = false,
+  use_std3_ascii_rules? : Bool = false
+) -> MappedLabel {
   let chars = label.to_array()
   let out_chars : Array[Char] = []
   let errs : IdnaErrorList = []
@@ -73,7 +77,7 @@ fn map_label(label : String, opts : IdnaOptions) -> MappedLabel {
         }
       }
       MappingStatus::Deviation =>
-        if opts._transitional_processing {
+        if transitional_processing {
           // transitional 模式：使用 mapping（例如 ß -> ss）
           let mut j = 0
           while j < mapping.length() {
@@ -90,14 +94,14 @@ fn map_label(label : String, opts : IdnaOptions) -> MappedLabel {
       }
       MappingStatus::DisallowedStd3Valid => {
         // 在 STD3 模式下不允许；否则当 Valid
-        if opts._use_std3_ascii_rules {
+        if use_std3_ascii_rules {
           errs.push(IdnaError::InvalidCharacter)
         }
         out_chars.push(c)
       }
       MappingStatus::DisallowedStd3Mapped =>
         // STD3 模式下不允许映射；否则当 Mapped
-        if opts._use_std3_ascii_rules {
+        if use_std3_ascii_rules {
           errs.push(IdnaError::InvalidCharacter)
           out_chars.push(c)
         } else {

@@ -3,7 +3,13 @@
 ///|
 fn to_ascii_core(
   domain : StringView,
-  opts : IdnaOptions,
+  check_hyphens? : Bool = true,
+  check_bidi? : Bool = true,
+  check_joiners? : Bool = true,
+  use_std3_ascii_rules? : Bool = false,
+  transitional_processing? : Bool = false,
+  verify_dns_length? : Bool = true,
+  ignore_invalid_punycode? : Bool = false,
 ) -> Result[String, IdnaErrorList] raise @buf.Utf8DecodeError {
   let labels = split_labels(domain)
   let trailing = has_trailing_dot(domain)
@@ -17,9 +23,19 @@ fn to_ascii_core(
       i += 1
       continue
     }
-    let mapped = map_label(raw_lbl, opts)
+    let mapped = map_label(
+      raw_lbl,
+      transitional_processing~,
+      use_std3_ascii_rules~,
+    )
     let lbl = mapped.value
-    let label_errs = validate_label_all(lbl, opts)
+    let label_errs = validate_label_all(
+      lbl,
+      check_hyphens~,
+      check_bidi~,
+      check_joiners~,
+      use_std3_ascii_rules~,
+    )
     // 聚合错误
     let mut j = 0
     while j < label_errs.length() {
@@ -47,7 +63,7 @@ fn to_ascii_core(
   }
 
   // 域名级别的 DNS 长度检查
-  let dns_errs = validate_domain_all(result, opts)
+  let dns_errs = validate_domain_all(result, verify_dns_length~)
   let mut k = 0
   while k < dns_errs.length() {
     all_errs.push(dns_errs[k])

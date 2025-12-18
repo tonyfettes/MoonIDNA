@@ -1,9 +1,12 @@
-// --- STD3 规则检查（只在 _use_std3_ascii_rules == true 时启用） ---
+// --- STD3 规则检查（只在 use_std3_ascii_rules == true 时启用） ---
 
 ///|
-fn check_std3(label : String, opts : IdnaOptions) -> IdnaErrorList {
+fn validate_std3(
+  label : String,
+  use_std3_ascii_rules? : Bool = false
+) -> IdnaErrorList {
   let errs : IdnaErrorList = []
-  if !opts._use_std3_ascii_rules {
+  if !use_std3_ascii_rules {
     return errs
   }
   let bs = @buf.string_to_utf8_bytes(label).to_array()
@@ -27,12 +30,12 @@ fn check_std3(label : String, opts : IdnaOptions) -> IdnaErrorList {
   errs
 }
 
-// --- 连字符规则检查（_check_hyphens） ---
+// --- 连字符规则检查（check_hyphens） ---
 
 ///|
-fn check_hyphens(label : String, opts : IdnaOptions) -> IdnaErrorList {
+fn validate_hyphens(label : String, check_hyphens? : Bool = true) -> IdnaErrorList {
   let errs : IdnaErrorList = []
-  if !opts._check_hyphens {
+  if !check_hyphens {
     return errs
   }
   let bs = @buf.string_to_utf8_bytes(label).to_array()
@@ -67,12 +70,15 @@ fn check_hyphens(label : String, opts : IdnaOptions) -> IdnaErrorList {
   errs
 }
 
-// --- DNS 长度检查（_verify_dns_length） ---
+// --- DNS 长度检查（verify_dns_length） ---
 
 ///|
-fn check_dns_length(domain : String, opts : IdnaOptions) -> IdnaErrorList {
+fn validate_dns_length(
+  domain : String,
+  verify_dns_length? : Bool = true
+) -> IdnaErrorList {
   let errs : IdnaErrorList = []
-  if !opts._verify_dns_length {
+  if !verify_dns_length {
     return errs
   }
   let bs = @buf.string_to_utf8_bytes(domain).to_array()
@@ -105,9 +111,9 @@ fn check_dns_length(domain : String, opts : IdnaOptions) -> IdnaErrorList {
 // --- 单个 label 的 Bidi 检查封装 ---
 
 ///|
-fn check_bidi(label : String, opts : IdnaOptions) -> IdnaErrorList {
+fn validate_bidi(label : String, check_bidi? : Bool = true) -> IdnaErrorList {
   let errs : IdnaErrorList = []
-  if !opts._check_bidi {
+  if !check_bidi {
     return errs
   }
 
@@ -125,9 +131,9 @@ fn check_bidi(label : String, opts : IdnaOptions) -> IdnaErrorList {
 // --- 单个 joiners 的 Bidi 检查封装 ---
 
 ///|
-fn check_joiners(label : String, opts : IdnaOptions) -> IdnaErrorList {
+fn validate_joiners(label : String, check_joiners? : Bool = true) -> IdnaErrorList {
   let errs : IdnaErrorList = []
-  if !opts._check_joiners {
+  if !check_joiners {
     return errs
   }
   if label.length() == 0 {
@@ -147,27 +153,33 @@ fn check_joiners(label : String, opts : IdnaOptions) -> IdnaErrorList {
 }
 
 ///|
-fn validate_label_all(label : String, opts : IdnaOptions) -> IdnaErrorList {
+fn validate_label_all(
+  label : String,
+  check_hyphens? : Bool = true,
+  check_bidi? : Bool = true,
+  check_joiners? : Bool = true,
+  use_std3_ascii_rules? : Bool = false
+) -> IdnaErrorList {
   let all : IdnaErrorList = []
-  let e1 = check_std3(label, opts)
+  let e1 = validate_std3(label, use_std3_ascii_rules~)
   let mut i = 0
   while i < e1.length() {
     all.push(e1[i])
     i += 1
   }
-  let e2 = check_hyphens(label, opts)
+  let e2 = validate_hyphens(label, check_hyphens~)
   let mut j = 0
   while j < e2.length() {
     all.push(e2[j])
     j += 1
   }
-  let e3 = check_bidi(label, opts)
+  let e3 = validate_bidi(label, check_bidi~)
   let mut k = 0
   while k < e3.length() {
     all.push(e3[k])
     k += 1
   }
-  let e4 = check_joiners(label, opts)
+  let e4 = validate_joiners(label, check_joiners~)
   let mut m = 0
   while m < e4.length() {
     all.push(e4[m])
@@ -177,9 +189,12 @@ fn validate_label_all(label : String, opts : IdnaOptions) -> IdnaErrorList {
 }
 
 ///|
-fn validate_domain_all(domain : String, opts : IdnaOptions) -> IdnaErrorList {
+fn validate_domain_all(
+  domain : String,
+  verify_dns_length? : Bool = true
+) -> IdnaErrorList {
   let all : IdnaErrorList = []
-  let e = check_dns_length(domain, opts)
+  let e = validate_dns_length(domain, verify_dns_length~)
   let mut i = 0
   while i < e.length() {
     all.push(e[i])

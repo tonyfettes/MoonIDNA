@@ -6,23 +6,9 @@ import(
 )
 
 // Values
-pub fn options_default() -> IdnaOptions
+pub fn to_ascii(StringView, check_hyphens? : Bool, check_bidi? : Bool, check_joiners? : Bool, use_std3_ascii_rules? : Bool, transitional_processing? : Bool, verify_dns_length? : Bool, ignore_invalid_punycode? : Bool) -> String raise @bufferutils.Utf8DecodeError
 
-pub fn options_strict_registration() -> IdnaOptions
-
-pub fn options_transitional() -> IdnaOptions
-
-pub fn to_ascii(StringView) -> String raise @bufferutils.Utf8DecodeError
-
-pub fn to_ascii_transitional(StringView) -> String raise @bufferutils.Utf8DecodeError
-
-pub fn to_ascii_with_options(StringView, IdnaOptions) -> String raise @bufferutils.Utf8DecodeError
-
-pub fn to_unicode(StringView) -> String raise @bufferutils.Utf8DecodeError
-
-pub fn to_unicode_transitional(StringView) -> String raise @bufferutils.Utf8DecodeError
-
-pub fn to_unicode_with_options(StringView, IdnaOptions) -> String raise @bufferutils.Utf8DecodeError
+pub fn to_unicode(StringView, check_hyphens? : Bool, check_bidi? : Bool, check_joiners? : Bool, use_std3_ascii_rules? : Bool, transitional_processing? : Bool, verify_dns_length? : Bool, ignore_invalid_punycode? : Bool) -> String raise @bufferutils.Utf8DecodeError
 
 // Errors
 
@@ -35,16 +21,6 @@ pub enum IdnaError {
   JoinerError
   LabelTooLong
   DomainTooLong
-}
-
-pub(all) struct IdnaOptions {
-  mut _check_hyphens : Bool
-  mut _check_bidi : Bool
-  mut _check_joiners : Bool
-  mut _use_std3_ascii_rules : Bool
-  mut _transitional_processing : Bool
-  mut _verify_dns_length : Bool
-  mut _ignore_invalid_punycode : Bool
 }
 
 // Type aliases

@@ -3,7 +3,13 @@
 ///|
 fn to_unicode_core(
   domain : StringView,
-  opts : IdnaOptions,
+  check_hyphens? : Bool = true,
+  check_bidi? : Bool = true,
+  check_joiners? : Bool = true,
+  use_std3_ascii_rules? : Bool = false,
+  transitional_processing? : Bool = false,
+  verify_dns_length? : Bool = true,
+  ignore_invalid_punycode? : Bool = false
 ) -> Result[String, IdnaErrorList] raise @buf.Utf8DecodeError {
   let labels = split_labels(domain)
   let trailing = has_trailing_dot(domain)
@@ -28,14 +34,20 @@ fn to_unicode_core(
           had_puny_err = true
         // decoded 保持 raw_lbl，不按 punycode 解释
       }
-      if had_puny_err && !opts._ignore_invalid_punycode {
+      if had_puny_err && !ignore_invalid_punycode {
         all_errs.push(IdnaError::InvalidPunycode)
       }
 
       // 解码后（或失败时的原始 label）统一走映射 + 校验
-      let mapped = map_label(decoded, opts)
+      let mapped = map_label(decoded, transitional_processing~, use_std3_ascii_rules~)
       let lbl = mapped.value
-      let label_errs = validate_label_all(lbl, opts)
+      let label_errs = validate_label_all(
+        lbl,
+        check_hyphens~,
+        check_bidi~,
+        check_joiners~,
+        use_std3_ascii_rules~
+      )
       let mut j = 0
       while j < label_errs.length() {
         all_errs.push(label_errs[j])
@@ -44,9 +56,15 @@ fn to_unicode_core(
       out_labels.push(lbl)
     } else {
       // 非 punycode label：同样跑映射 + 校验
-      let mapped = map_label(raw_lbl, opts)
+      let mapped = map_label(raw_lbl, transitional_processing~, use_std3_ascii_rules~)
       let lbl = mapped.value
-      let label_errs = validate_label_all(lbl, opts)
+      let label_errs = validate_label_all(
+        lbl,
+        check_hyphens~,
+        check_bidi~,
+        check_joiners~,
+        use_std3_ascii_rules~
+      )
       let mut j = 0
       while j < label_errs.length() {
         all_errs.push(label_errs[j])

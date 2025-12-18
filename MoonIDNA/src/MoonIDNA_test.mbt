@@ -32,7 +32,7 @@ test "idna: non-ascii punycode roundtrip" {
 ///|
 test "punycode: encode buecher" {
   let s = "bücher"
-  let enc = match encode(s) {
+  let enc = match @punycode.encode(s) {
     Ok(v) => v
     Err(_) => {
       let a = true
@@ -47,7 +47,7 @@ test "punycode: encode buecher" {
 ///|
 test "punycode: decode bcher-kva" {
   let enc = "bcher-kva"
-  let dec = match decode(enc) {
+  let dec = match @punycode.decode(enc) {
     Ok(v) => v
     Err(_) => {
       let a = true
@@ -191,7 +191,7 @@ test "idna: punycode prefix case-insensitive" {
 ///|
 test "punycode: encode ascii-only label unchanged" {
   let s = "example"
-  let enc = match encode(s) {
+  let enc = match @punycode.encode(s) {
     Ok(v) => v
     Err(_) => {
       let a = true
@@ -205,7 +205,7 @@ test "punycode: encode ascii-only label unchanged" {
 ///|
 test "punycode: encode empty label" {
   let s = ""
-  let enc = match encode(s) {
+  let enc = match @punycode.encode(s) {
     Ok(v) => v
     Err(_) => {
       let a = true
@@ -219,7 +219,7 @@ test "punycode: encode empty label" {
 ///|
 test "punycode: decode empty label" {
   let enc = ""
-  let dec = match decode(enc) {
+  let dec = match @punycode.decode(enc) {
     Ok(v) => v
     Err(_) => {
       let a = true

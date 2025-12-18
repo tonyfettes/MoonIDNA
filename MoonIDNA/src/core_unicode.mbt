@@ -20,7 +20,7 @@ pub fn to_unicode_core(
       let payload = punycode_payload(raw_lbl)
       let mut decoded = raw_lbl
       let mut had_puny_err = false
-      match decode(payload) {
+      match @punycode.decode(payload) {
         Ok(v) => decoded = v
         Err(_) =>
           // 解析失败：根据 _ignore_invalid_punycode 决定是否记录错误

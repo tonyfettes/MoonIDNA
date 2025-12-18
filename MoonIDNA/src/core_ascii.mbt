@@ -29,7 +29,7 @@ pub fn to_ascii_core(
     if is_all_ascii(lbl) {
       out_labels.push(lbl)
     } else {
-      let ascii_label = match encode(lbl) {
+      let ascii_label = match @punycode.encode(lbl) {
         Ok(v) => {
           let mut s = "xn--".to_string()
           s = s + v

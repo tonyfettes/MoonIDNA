@@ -1,16 +1,16 @@
 {
-    "import": [
-        {
-            "path": "ZSeanYves/bufferutils",  
-            "alias": "buf"
-        },
-        {
-            "path": "ZSeanYves/MoonIDNA/punycode",
-            "alias": "punycode"
-        },
-        {
-            "path": "ZSeanYves/MoonIDNA/bidi",
-            "alias": "bidi"
-        }
-    ]
+  "import": [
+    {
+      "path": "ZSeanYves/bufferutils",
+      "alias": "buf"
+    },
+    {
+      "path": "ZSeanYves/MoonIDNA/punycode",
+      "alias": "punycode"
+    },
+    {
+      "path": "ZSeanYves/MoonIDNA/bidi",
+      "alias": "bidi"
+    }
+  ]
 }

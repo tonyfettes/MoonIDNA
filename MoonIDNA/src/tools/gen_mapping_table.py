@@ -14,17 +14,20 @@ STATUS_MAP = {
     "disallowed_STD3_mapped": "MappingStatus::DisallowedStd3Mapped",
 }
 
+
 def parse_code_point(s: str) -> int:
     return int(s, 16)
 
-def parse_mapping_field(field: str):
+
+def parse_mapping_field(field: str) -> list[int]:
     field = field.strip()
     if not field:
         return []
     return [parse_code_point(x) for x in field.split()]
 
+
 def load_raw_entries():
-    entries = []
+    entries: list[tuple[int, int, str, tuple[int, ...]]] = []
     with DATA_FILE.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -53,12 +56,15 @@ def load_raw_entries():
             entries.append((start, end, status, tuple(mapping_seq)))
     return entries
 
-def merge_entries(entries):
+
+def merge_entries(
+    entries: list[tuple[int, int, str, tuple[int, ...]]],
+) -> list[tuple[int, int, str, tuple[int, ...]]]:
     if not entries:
         return []
 
-    entries.sort(key=lambda e: e[0])  
-    merged = []
+    entries.sort(key=lambda e: e[0])
+    merged: list[tuple[int, int, str, tuple[int, ...]]] = []
     cur_start, cur_end, cur_status, cur_map = entries[0]
 
     for start, end, status, mapping in entries[1:]:
@@ -71,28 +77,29 @@ def merge_entries(entries):
     merged.append((cur_start, cur_end, cur_status, cur_map))
     return merged
 
-def emit_tables_mbt(entries):
-    lines = []
-    lines.append('/// UTS #46 映射状态\n')
-    lines.append('///|\n')
-    lines.append('pub enum MappingStatus {\n')
-    lines.append('  Valid\n')
-    lines.append('  Ignored\n')
-    lines.append('  Mapped\n')
-    lines.append('  Deviation\n')
-    lines.append('  Disallowed\n')
-    lines.append('  DisallowedStd3Valid\n')
-    lines.append('  DisallowedStd3Mapped\n')
-    lines.append('}\n\n')
-    lines.append('/// 单条映射区间\n')
-    lines.append('///|\n')
-    lines.append('pub struct MappingEntry{\n')
-    lines.append('  start : Int\n')
-    lines.append('  end : Int\n')
-    lines.append('  status : MappingStatus\n')
-    lines.append('  mapping : Array[Int]\n')
-    lines.append('}\n\n')
-    lines.append('pub let mapping_table : Array[MappingEntry] = [\n')
+
+def emit_tables_mbt(entries: list[tuple[int, int, str, tuple[int, ...]]]) -> str:
+    lines: list[str] = []
+    lines.append("/// UTS #46 映射状态\n")
+    lines.append("///|\n")
+    lines.append("pub enum MappingStatus {\n")
+    lines.append("  Valid\n")
+    lines.append("  Ignored\n")
+    lines.append("  Mapped\n")
+    lines.append("  Deviation\n")
+    lines.append("  Disallowed\n")
+    lines.append("  DisallowedStd3Valid\n")
+    lines.append("  DisallowedStd3Mapped\n")
+    lines.append("}\n\n")
+    lines.append("/// 单条映射区间\n")
+    lines.append("///|\n")
+    lines.append("pub struct MappingEntry{\n")
+    lines.append("  start : Int\n")
+    lines.append("  end : Int\n")
+    lines.append("  status : MappingStatus\n")
+    lines.append("  mapping : Array[Int]\n")
+    lines.append("}\n\n")
+    lines.append("pub let mapping_table : Array[MappingEntry] = [\n")
 
     for start, end, status, mapping in entries:
         if mapping:
@@ -102,12 +109,13 @@ def emit_tables_mbt(entries):
             mapping_str = "[]"
 
         lines.append(
-            f'  {{start : 0x{start:04X}, end : 0x{end:04X}, '
-            f'status : {status}, mapping : {mapping_str}}},\n'
+            f"  {{start : 0x{start:04X}, end : 0x{end:04X}, "
+            f"status : {status}, mapping : {mapping_str}}},\n"
         )
 
-    lines.append(']\n')
+    lines.append("]\n")
     return "".join(lines)
+
 
 def main():
     entries = load_raw_entries()
@@ -116,6 +124,7 @@ def main():
     OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     OUT_FILE.write_text(out_text, encoding="utf-8")
     print(f"Generated {OUT_FILE} with {len(merged)} entries.")
+
 
 if __name__ == "__main__":
     main()

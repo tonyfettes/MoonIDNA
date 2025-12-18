@@ -5,17 +5,17 @@ DATA_FILE = ROOT / "data" / "DerivedBidiClass.txt"
 OUT_FILE = ROOT / "bidi_table.mbt"
 
 BIDI_CLASS_MAP = {
-    "L":   "BidiClass::L",
-    "R":   "BidiClass::R",
-    "AL":  "BidiClass::AL",
-    "EN":  "BidiClass::EN",
-    "ES":  "BidiClass::ES",
-    "ET":  "BidiClass::ET",
-    "AN":  "BidiClass::AN",
-    "CS":  "BidiClass::CS",
+    "L": "BidiClass::L",
+    "R": "BidiClass::R",
+    "AL": "BidiClass::AL",
+    "EN": "BidiClass::EN",
+    "ES": "BidiClass::ES",
+    "ET": "BidiClass::ET",
+    "AN": "BidiClass::AN",
+    "CS": "BidiClass::CS",
     "NSM": "BidiClass::NSM",
-    "BN":  "BidiClass::BN",
-    "ON":  "BidiClass::ON",
+    "BN": "BidiClass::BN",
+    "ON": "BidiClass::ON",
     "LRE": "BidiClass::LRE",
     "LRO": "BidiClass::LRO",
     "RLE": "BidiClass::RLE",
@@ -25,16 +25,18 @@ BIDI_CLASS_MAP = {
     "RLI": "BidiClass::RLI",
     "FSI": "BidiClass::FSI",
     "PDI": "BidiClass::PDI",
-    "S":   "BidiClass::S",
-    "WS":  "BidiClass::WS",
-    "B":   "BidiClass::B",
+    "S": "BidiClass::S",
+    "WS": "BidiClass::WS",
+    "B": "BidiClass::B",
 }
+
 
 def parse_code_point(s: str) -> int:
     return int(s, 16)
 
+
 def load_raw_entries():
-    entries = []
+    entries: list[tuple[int, int, str]] = []
     with DATA_FILE.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -66,12 +68,13 @@ def load_raw_entries():
             entries.append((start, end, bc))
     return entries
 
-def merge_entries(entries):
+
+def merge_entries(entries: list[tuple[int, int, str]]) -> list[tuple[int, int, str]]:
     if not entries:
         return []
 
     entries.sort(key=lambda e: e[0])
-    merged = []
+    merged: list[tuple[int, int, str]] = []
     cur_start, cur_end, cur_bc = entries[0]
 
     for start, end, bc in entries[1:]:
@@ -84,21 +87,42 @@ def merge_entries(entries):
     merged.append((cur_start, cur_end, cur_bc))
     return merged
 
-def emit_bidi_table(entries):
-    lines = []
-    lines.append("/// Unicode Bidi_Class\n")
+
+def emit_bidi_table(entries: list[tuple[int, int, str]]) -> str:
+    lines: list[str] = []
     lines.append("///|\n")
+    lines.append("/// Unicode Bidi_Class\n")
     lines.append("pub enum BidiClass {\n")
     enum_names = [
-        "L","R","AL","EN","ES","ET","AN","CS","NSM","BN","ON",
-        "LRE","LRO","RLE","RLO","PDF","LRI","RLI","FSI","PDI",
-        "S","WS","B",
+        "L",
+        "R",
+        "AL",
+        "EN",
+        "ES",
+        "ET",
+        "AN",
+        "CS",
+        "NSM",
+        "BN",
+        "ON",
+        "LRE",
+        "LRO",
+        "RLE",
+        "RLO",
+        "PDF",
+        "LRI",
+        "RLI",
+        "FSI",
+        "PDI",
+        "S",
+        "WS",
+        "B",
     ]
     for name in enum_names:
         lines.append(f"  {name}\n")
     lines.append("}\n\n")
-    lines.append("/// Bidi 类区间\n")
     lines.append("///|\n")
+    lines.append("/// Bidi 类区间\n")
     lines.append("pub struct BidiEntry{\n")
     lines.append("  start : Int\n")
     lines.append("  end   : Int\n")
@@ -106,16 +130,15 @@ def emit_bidi_table(entries):
     lines.append("}\n\n")
 
     # table
-    lines.append("/// 按 start 升序的 Bidi 区间表\n")
     lines.append("///|\n")
+    lines.append("/// 按 start 升序的 Bidi 区间表\n")
     lines.append("pub let bidi_table : Array[BidiEntry] = [\n")
     for start, end, bc in entries:
-        lines.append(
-            f"  {{ start: 0x{start:04X}, end: 0x{end:04X}, class: {bc} }},\n"
-        )
+        lines.append(f"  {{ start: 0x{start:04X}, end: 0x{end:04X}, class: {bc} }},\n")
     lines.append("]\n")
 
     return "".join(lines)
+
 
 def main():
     entries = load_raw_entries()
@@ -124,6 +147,7 @@ def main():
     OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     OUT_FILE.write_text(out_text, encoding="utf-8")
     print(f"Generated {OUT_FILE} with {len(merged)} entries.")
+
 
 if __name__ == "__main__":
     main()

@@ -8,29 +8,25 @@ OUT_FILE = ROOT / "joining_table.mbt"
 JT_FILE = DATA_DIR / "DerivedJoiningType.txt"
 UCD_FILE = DATA_DIR / "UnicodeData.txt"
 
-jt_re = re.compile(
-    r"^([0-9A-F]{4,6})(?:\.\.([0-9A-F]{4,6}))?\s*;\s*([A-Za-z_]+)"
-)
+jt_re = re.compile(r"^([0-9A-F]{4,6})(?:\.\.([0-9A-F]{4,6}))?\s*;\s*([A-Za-z_]+)")
 
 JT_MAP = {
-    "U": "JoiningType::U",  
-    "L": "JoiningType::L", 
-    "R": "JoiningType::R",  
-    "D": "JoiningType::D",  
-    "T": "JoiningType::T",  
-    "C": "JoiningType::C",  
-
-    "Non_Joining":   "JoiningType::U",
-    "Left_Joining":  "JoiningType::L",
+    "U": "JoiningType::U",
+    "L": "JoiningType::L",
+    "R": "JoiningType::R",
+    "D": "JoiningType::D",
+    "T": "JoiningType::T",
+    "C": "JoiningType::C",
+    "Non_Joining": "JoiningType::U",
+    "Left_Joining": "JoiningType::L",
     "Right_Joining": "JoiningType::R",
-    "Dual_Joining":  "JoiningType::D",
-    "Transparent":   "JoiningType::T",
-    "Join_Causing":  "JoiningType::C",
+    "Dual_Joining": "JoiningType::D",
+    "Transparent": "JoiningType::T",
+    "Join_Causing": "JoiningType::C",
 }
 
 
-
-entries = []  
+entries: list[tuple[int, int, str]] = []
 
 with JT_FILE.open("r", encoding="utf-8") as f:
     for line in f:
@@ -59,7 +55,7 @@ with JT_FILE.open("r", encoding="utf-8") as f:
 entries.sort(key=lambda x: x[0])
 
 
-viramas = []  
+viramas: list[int] = []
 
 with UCD_FILE.open("r", encoding="utf-8") as f:
     for line in f:
@@ -82,25 +78,27 @@ viramas.sort()
 
 
 with OUT_FILE.open("w", encoding="utf-8") as out:
-    out.write("""pub enum JoiningType {
-    U // Non_Joining or unknown
-    L // Left_Joining
-    R // Right_Joining
-    D // Dual_Joining
-    T // Transparent
-    C // Join_Causing
+    out.write(
+        """pub enum JoiningType {
+  U // Non_Joining or unknown
+  L // Left_Joining
+  R // Right_Joining
+  D // Dual_Joining
+  T // Transparent
+  C // Join_Causing
 }
 
 ///|
 pub struct JoiningEntry {
-    start : Int
-    end : Int
-    class : JoiningType
+  start : Int
+  end : Int
+  class : JoiningType
 }
 
 ///|
 pub let joining_table : Array[JoiningEntry] = [
-""")
+"""
+    )
 
     for start, end, cls in entries:
         out.write(f"  {{ start: 0x{start:X}, end: 0x{end:X}, class: {cls} }},\n")
@@ -113,7 +111,8 @@ pub let joining_table : Array[JoiningEntry] = [
         out.write(f"  0x{cp:X},\n")
     out.write("]\n\n")
 
-    out.write("""///|
+    out.write(
+        """///|
 pub fn joining_type_of(cp : Int) -> JoiningType {
   let mut lo = 0
   let mut hi = joining_table.length()
@@ -148,6 +147,15 @@ pub fn is_virama(cp : Int) -> Bool {
   }
   false
 }
-""")
+"""
+    )
 
-print("Generated", OUT_FILE, "with", len(entries), "joining ranges and", len(viramas), "viramas.")
+print(
+    "Generated",
+    OUT_FILE,
+    "with",
+    len(entries),
+    "joining ranges and",
+    len(viramas),
+    "viramas.",
+)

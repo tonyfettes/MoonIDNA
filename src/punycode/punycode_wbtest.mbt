@@ -153,92 +153,62 @@ test "string to codepoints - empty" {
 test "codepoints_to_string - ASCII" {
   let cps = [104, 101, 108, 108, 111]
   let result = codepoints_to_string(cps)
-  inspect(
-    result,
-    content=(
-      #|Ok("hello")
-    ),
-  )
+  inspect(result, content="hello")
 }
 
 ///|
 test "codepoints_to_string - 2-byte UTF-8" {
   let cps = [99, 97, 102, 233]
   let result = codepoints_to_string(cps)
-  inspect(
-    result,
-    content=(
-      #|Ok("café")
-    ),
-  )
+  inspect(result, content="café")
 }
 
 ///|
 test "codepoints_to_string - 3-byte UTF-8" {
   let cps = [20013, 25991]
   let result = codepoints_to_string(cps)
-  inspect(
-    result,
-    content=(
-      #|Ok("中文")
-    ),
-  )
+  inspect(result, content="中文")
 }
 
 ///|
 test "codepoints_to_string - 4-byte UTF-8" {
   let cps = [128512]
   let result = codepoints_to_string(cps)
-  inspect(
-    result,
-    content=(
-      #|Ok("😀")
-    ),
-  )
+  inspect(result, content="😀")
 }
 
 ///|
 test "codepoints_to_string - mixed" {
   let cps = [97, 20013, 98]
   let result = codepoints_to_string(cps)
-  inspect(
-    result,
-    content=(
-      #|Ok("a中b")
-    ),
-  )
+  inspect(result, content="a中b")
 }
 
 ///|
 test "codepoints_to_string - empty" {
   let cps : Array[Int] = []
   let result = codepoints_to_string(cps)
-  inspect(
-    result,
-    content=(
-      #|Ok("")
-    ),
-  )
+  inspect(result, content="")
 }
 
 ///|
 test "codepoints_to_string - invalid codepoint negative" {
   let cps = [-1]
-  let result = codepoints_to_string(cps)
+  let result = try? codepoints_to_string(cps)
   inspect(result, content="Err(InvalidInput)")
 }
 
 ///|
 test "codepoints_to_string - invalid codepoint too large" {
   let cps = [0x110000]
-  let result = codepoints_to_string(cps)
+  let result = try? codepoints_to_string(cps)
   inspect(result, content="Err(InvalidInput)")
 }
 
 ///|
 test "codepoints_to_string - surrogate pair" {
   let cps = [0xD800]
-  let result = codepoints_to_string(cps)
+  let result = try? codepoints_to_string(cps)
   inspect(result, content="Err(InvalidInput)")
 }
 
@@ -247,120 +217,85 @@ test "codepoints_to_string - surrogate pair" {
 test "encode_codepoints - empty array" {
   let cps : Array[Int] = []
   let result = encode_codepoints(cps)
-  inspect(
-    result,
-    content=(
-      #|Ok("")
-    ),
-  )
+  inspect(result, content="")
 }
 
 ///|
 test "encode_codepoints - ASCII only" {
   let cps = [104, 101, 108, 108, 111]
   let result = encode_codepoints(cps)
-  inspect(
-    result,
-    content=(
-      #|Ok("hello")
-    ),
-  )
+  inspect(result, content="hello")
 }
 
 ///|
 test "encode_codepoints - non-ASCII only" {
   let cps = [20013, 25991]
   let result = encode_codepoints(cps)
-  inspect(
-    result,
-    content=(
-      #|Ok("fiq228c")
-    ),
-  )
+  inspect(result, content="fiq228c")
 }
 
 ///|
 test "encode_codepoints - mixed" {
   let cps = [104, 101, 108, 108, 111, 20013, 25991]
   let result = encode_codepoints(cps)
-  inspect(
-    result,
-    content=(
-      #|Ok("hello-9n1h080l")
-    ),
-  )
+  inspect(result, content="hello-9n1h080l")
 }
 
 ///|
 test "encode_codepoints - single non-ASCII" {
   let cps = [20013]
   let result = encode_codepoints(cps)
-  inspect(
-    result,
-    content=(
-      #|Ok("fiq")
-    ),
-  )
+  inspect(result, content="fiq")
 }
 
 ///|
 test "encode_codepoints - ASCII followed by non-ASCII" {
   let cps = [97, 20013]
   let result = encode_codepoints(cps)
-  inspect(
-    result,
-    content=(
-      #|Ok("a-lq6a")
-    ),
-  )
+  inspect(result, content="a-lq6a")
 }
 
 ///|
 test "encode_codepoints - non-ASCII followed by ASCII" {
   let cps = [20013, 97]
   let result = encode_codepoints(cps)
-  inspect(
-    result,
-    content=(
-      #|Ok("a-kq6a")
-    ),
-  )
+  inspect(result, content="a-kq6a")
 }
 
 ///|
 /// Test decode_to_codepoints function
 test "decode_to_codepoints - empty string" {
   let result = decode_to_codepoints("")
-  inspect(result, content="Ok([])")
+  inspect(result, content="[]")
 }
 
 ///|
 test "decode_to_codepoints - ASCII only" {
   let result = decode_to_codepoints("hello")
-  inspect(result, content="Ok([13760, 13750, 13755])")
+  inspect(result, content="[13760, 13750, 13755]")
 }
 
 ///|
 test "decode_to_codepoints - encoded non-ASCII" {
   let result = decode_to_codepoints("fiq228c")
-  inspect(result, content="Ok([25991, 20013])")
+  inspect(result, content="[25991, 20013]")
 }
 
 ///|
 test "decode_to_codepoints - mixed" {
   let result = decode_to_codepoints("hello-ck1hg65u")
-  inspect(result, content="Ok([104, 101, 108, 108, 111, 30028, 19990])")
+  inspect(result, content="[104, 101, 108, 108, 111, 30028, 19990]")
 }
 
 ///|
 test "decode_to_codepoints - single non-ASCII" {
-  let result = decode_to_codepoints("1y2")
+  let result = try? decode_to_codepoints("1y2")
   inspect(result, content="Err(InvalidInput)")
 }
 
 ///|
 test "decode_to_codepoints - invalid input high byte" {
-  let result = decode_to_codepoints("hello\u{FF}")
+  let result = try? decode_to_codepoints("hello\u{FF}")
   inspect(result, content="Err(InvalidInput)")
 }
 
@@ -412,12 +347,7 @@ test "round-trip codepoints - ASCII" {
   let chars = original.to_array()
   let cps = chars.map(fn(c) { c.to_int() })
   let back = codepoints_to_string(cps)
-  inspect(
-    back,
-    content=(
-      #|Ok("hello")
-    ),
-  )
+  inspect(back, content="hello")
 }
 
 ///|
@@ -426,12 +356,7 @@ test "round-trip codepoints - Unicode" {
   let chars = original.to_array()
   let cps = chars.map(fn(c) { c.to_int() })
   let back = codepoints_to_string(cps)
-  inspect(
-    back,
-    content=(
-      #|Ok("中文")
-    ),
-  )
+  inspect(back, content="中文")
 }
 
 ///|
@@ -440,12 +365,7 @@ test "round-trip codepoints - emoji" {
   let chars = original.to_array()
   let cps = chars.map(fn(c) { c.to_int() })
   let back = codepoints_to_string(cps)
-  inspect(
-    back,
-    content=(
-      #|Ok("😀")
-    ),
-  )
+  inspect(back, content="😀")
 }
 
 ///|
@@ -453,39 +373,24 @@ test "round-trip codepoints - emoji" {
 test "round-trip encode/decode codepoints - simple" {
   let cps = [20013, 25991]
   let encoded = encode_codepoints(cps)
-  match encoded {
-    Ok(enc) => {
-      let decoded = decode_to_codepoints(enc.to_string())
-      inspect(decoded, content="Ok([25991, 20013])")
-    }
-    Err(_) => @test.fail("encode_codepoints failed")
-  }
+  let decoded = decode_to_codepoints(encoded.to_string())
+  inspect(decoded, content="[25991, 20013]")
 }
 
 ///|
 test "round-trip encode/decode codepoints - mixed" {
   let cps = [104, 101, 108, 108, 111, 20013, 25991]
   let encoded = encode_codepoints(cps)
-  match encoded {
-    Ok(enc) => {
-      let decoded = decode_to_codepoints(enc.to_string())
-      inspect(decoded, content="Ok([104, 101, 108, 108, 111, 25991, 20013])")
-    }
-    Err(_) => @test.fail("encode_codepoints failed")
-  }
+  let decoded = decode_to_codepoints(encoded.to_string())
+  inspect(decoded, content="[104, 101, 108, 108, 111, 25991, 20013]")
 }
 
 ///|
 test "round-trip encode/decode codepoints - ASCII only" {
   let cps = [104, 101, 108, 108, 111]
   let encoded = encode_codepoints(cps)
-  match encoded {
-    Ok(enc) => {
-      let decoded = decode_to_codepoints(enc.to_string())
-      inspect(decoded, content="Ok([13760, 13750, 13755])")
-    }
-    Err(_) => @test.fail("encode_codepoints failed")
-  }
+  let decoded = decode_to_codepoints(encoded.to_string())
+  inspect(decoded, content="[13760, 13750, 13755]")
 }
 
 ///|

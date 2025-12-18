@@ -27,13 +27,14 @@ test "idna: non-ascii punycode roundtrip" {
 ///|
 test "punycode: encode buecher" {
   let s = "bücher"
-  let enc = match @punycode.encode(s) {
-    Ok(v) => v
-    Err(_) => {
+  let enc = try @punycode.encode(s) catch {
+    _ => {
       let a = true
       assert_eq(a, false)
       "".to_string()
     }
+  } noraise {
+    v => v
   }
   // RFC 3492 / 各种资料中的标准结果：bücher -> bcher-kva
   assert_eq(enc, "bcher-kva")
@@ -42,13 +43,14 @@ test "punycode: encode buecher" {
 ///|
 test "punycode: decode bcher-kva" {
   let enc = "bcher-kva"
-  let dec = match @punycode.decode(enc) {
-    Ok(v) => v
-    Err(_) => {
+  let dec = try @punycode.decode(enc) catch {
+    _ => {
       let a = true
       assert_eq(a, false)
       "".to_string()
     }
+  } noraise {
+    v => v
   }
   assert_eq(dec, "bücher")
 }
@@ -151,13 +153,14 @@ test "idna: punycode prefix case-insensitive" {
 ///|
 test "punycode: encode ascii-only label unchanged" {
   let s = "example"
-  let enc = match @punycode.encode(s) {
-    Ok(v) => v
-    Err(_) => {
+  let enc = try @punycode.encode(s) catch {
+    _ => {
       let a = true
       assert_eq(a, false)
       "".to_string()
     }
+  } noraise {
+    v => v
   }
   assert_eq(enc, "example")
 }
@@ -165,13 +168,14 @@ test "punycode: encode ascii-only label unchanged" {
 ///|
 test "punycode: encode empty label" {
   let s = ""
-  let enc = match @punycode.encode(s) {
-    Ok(v) => v
-    Err(_) => {
+  let enc = try @punycode.encode(s) catch {
+    _ => {
       let a = true
       assert_eq(a, false)
       "".to_string()
     }
+  } noraise {
+    v => v
   }
   assert_eq(enc, "")
 }
@@ -179,13 +183,14 @@ test "punycode: encode empty label" {
 ///|
 test "punycode: decode empty label" {
   let enc = ""
-  let dec = match @punycode.decode(enc) {
-    Ok(v) => v
-    Err(_) => {
+  let dec = try @punycode.decode(enc) catch {
+    _ => {
       let a = true
       assert_eq(a, false)
       "".to_string()
     }
+  } noraise {
+    v => v
   }
   assert_eq(dec, "")
 }

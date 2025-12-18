@@ -1,5 +1,5 @@
 ///|
-pub enum PunycodeError {
+pub suberror PunycodeError {
   InvalidInput
   Overflow
   InvalidUtf8

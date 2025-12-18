@@ -8,8 +8,7 @@ pub fn to_ascii(
   transitional_processing? : Bool = false,
   verify_dns_length? : Bool = true,
   ignore_invalid_punycode? : Bool = false,
-) -> String raise @buf.Utf8DecodeError {
-  // 先用 Result 版本，方便后面扩展错误处理
+) -> String raise {
   match
     to_ascii_core(
       domain,

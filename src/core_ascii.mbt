@@ -10,7 +10,7 @@ fn to_ascii_core(
   transitional_processing? : Bool = false,
   verify_dns_length? : Bool = true,
   ignore_invalid_punycode? : Bool = false,
-) -> Result[String, IdnaErrorList] raise @buf.Utf8DecodeError {
+) -> Result[String, IdnaErrorList] raise {
   let labels = split_labels(domain)
   let trailing = has_trailing_dot(domain)
   let out_labels : Array[String] = []
@@ -45,13 +45,14 @@ fn to_ascii_core(
     if is_all_ascii(lbl) {
       out_labels.push(lbl)
     } else {
-      let ascii_label = match @punycode.encode(lbl) {
-        Ok(v) => {
+      let ascii_label = try @punycode.encode(lbl) catch {
+        _ => lbl.to_string()
+      } noraise {
+        v => {
           let mut s = "xn--".to_string()
           s = s + v
           s
         }
-        Err(_) => lbl.to_string()
       }
       out_labels.push(ascii_label)
     }

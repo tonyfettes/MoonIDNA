@@ -27,12 +27,13 @@ fn to_unicode_core(
       let payload = punycode_payload(raw_lbl)
       let mut decoded = raw_lbl
       let mut had_puny_err = false
-      match @punycode.decode(payload) {
-        Ok(v) => decoded = v
-        Err(_) =>
+      try @punycode.decode(payload) catch {
+        _ =>
           // 解析失败：根据 _ignore_invalid_punycode 决定是否记录错误
           had_puny_err = true
         // decoded 保持 raw_lbl，不按 punycode 解释
+      } noraise {
+        v => decoded = v
       }
       if had_puny_err && !ignore_invalid_punycode {
         all_errs.push(IdnaError::InvalidPunycode)

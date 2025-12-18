@@ -2,19 +2,19 @@
 package "ZSeanYves/MoonIDNA/punycode"
 
 // Values
-pub fn decode(StringView) -> Result[String, PunycodeError]
+pub fn decode(StringView) -> String raise PunycodeError
 
-pub fn encode(StringView) -> Result[String, PunycodeError]
+pub fn encode(StringView) -> String raise PunycodeError
 
 // Errors
-
-// Types and methods
-pub enum PunycodeError {
+pub suberror PunycodeError {
   InvalidInput
   Overflow
   InvalidUtf8
 }
 pub impl Show for PunycodeError
+
+// Types and methods
 
 // Type aliases
 

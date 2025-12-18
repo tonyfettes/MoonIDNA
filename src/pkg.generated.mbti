@@ -6,7 +6,7 @@ import(
 )
 
 // Values
-pub fn to_ascii(StringView, check_hyphens? : Bool, check_bidi? : Bool, check_joiners? : Bool, use_std3_ascii_rules? : Bool, transitional_processing? : Bool, verify_dns_length? : Bool, ignore_invalid_punycode? : Bool) -> String raise @bufferutils.Utf8DecodeError
+pub fn to_ascii(StringView, check_hyphens? : Bool, check_bidi? : Bool, check_joiners? : Bool, use_std3_ascii_rules? : Bool, transitional_processing? : Bool, verify_dns_length? : Bool, ignore_invalid_punycode? : Bool) -> String raise
 
 pub fn to_unicode(StringView, check_hyphens? : Bool, check_bidi? : Bool, check_joiners? : Bool, use_std3_ascii_rules? : Bool, transitional_processing? : Bool, verify_dns_length? : Bool, ignore_invalid_punycode? : Bool) -> String raise @bufferutils.Utf8DecodeError
 

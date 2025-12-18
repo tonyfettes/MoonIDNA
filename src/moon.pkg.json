@@ -1,10 +1,6 @@
 {
   "import": [
     {
-      "path": "ZSeanYves/bufferutils",
-      "alias": "buf"
-    },
-    {
       "path": "ZSeanYves/MoonIDNA/punycode",
       "alias": "punycode"
     },

@@ -9,7 +9,7 @@ fn validate_std3(
   if !use_std3_ascii_rules {
     return errs
   }
-  let bs = @buf.string_to_utf8_bytes(label).to_array()
+  let bs = @encoding/utf8.encode(label).to_array()
   let mut i = 0
   while i < bs.length() {
     let b = bs[i].to_int()
@@ -41,7 +41,7 @@ fn validate_hyphens(
   if !check_hyphens {
     return errs
   }
-  let bs = @buf.string_to_utf8_bytes(label).to_array()
+  let bs = @encoding/utf8.encode(label).to_array()
   let len = bs.length()
   if len == 0 {
     return errs
@@ -84,7 +84,7 @@ fn validate_dns_length(
   if !verify_dns_length {
     return errs
   }
-  let bs = @buf.string_to_utf8_bytes(domain).to_array()
+  let bs = @encoding/utf8.encode(domain).to_array()
   let total_len = bs.length()
   if total_len > 255 {
     errs.push(IdnaError::DomainTooLong)

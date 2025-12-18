@@ -37,7 +37,7 @@ pub fn to_unicode(
   transitional_processing? : Bool = false,
   verify_dns_length? : Bool = true,
   ignore_invalid_punycode? : Bool = false,
-) -> String raise @buf.Utf8DecodeError {
+) -> String raise @encoding/utf8.Malformed {
   match
     to_unicode_core(
       domain,

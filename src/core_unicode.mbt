@@ -10,7 +10,7 @@ fn to_unicode_core(
   transitional_processing? : Bool = false,
   verify_dns_length? : Bool = true,
   ignore_invalid_punycode? : Bool = false,
-) -> Result[String, IdnaErrorList] raise @buf.Utf8DecodeError {
+) -> Result[String, IdnaErrorList] raise @encoding/utf8.Malformed {
   let labels = split_labels(domain)
   let trailing = has_trailing_dot(domain)
   let out_labels : Array[String] = []

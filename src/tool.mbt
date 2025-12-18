@@ -2,7 +2,7 @@
 // --- 工具：检测末尾是否有 '.' ---
 fn has_trailing_dot(domain : StringView) -> Bool {
   let s_str = domain.to_string()
-  let bs = @buf.string_to_utf8_bytes(s_str).to_array()
+  let bs = @encoding/utf8.encode(s_str).to_array()
   if bs.length() == 0 {
     return false
   }
@@ -13,9 +13,9 @@ fn has_trailing_dot(domain : StringView) -> Bool {
 // --- 工具：将域名拆成 labels（忽略末尾的 '.'，方便处理） ---
 fn split_labels(
   domain : StringView,
-) -> Array[String] raise @buf.Utf8DecodeError {
+) -> Array[String] raise @encoding/utf8.Malformed {
   let s_str = domain.to_string()
-  let bs = @buf.string_to_utf8_bytes(s_str).to_array()
+  let bs = @encoding/utf8.encode(s_str).to_array()
   let labels : Array[String] = []
   let mut current : Array[Byte] = []
   let mut limit = bs.length()
@@ -31,7 +31,7 @@ fn split_labels(
       let label_str = if current.length() == 0 {
         "".to_string()
       } else {
-        @buf.utf8_bytes_to_string(Bytes::from_array(current))
+        @encoding/utf8.decode(Bytes::from_array(current))
       }
       labels.push(label_str)
       current = []
@@ -46,7 +46,7 @@ fn split_labels(
     let label_str = if current.length() == 0 {
       "".to_string()
     } else {
-      @buf.utf8_bytes_to_string(Bytes::from_array(current))
+      @encoding/utf8.decode(Bytes::from_array(current))
     }
     labels.push(label_str)
   }
@@ -56,7 +56,7 @@ fn split_labels(
 ///|
 // --- 工具：判断一个 label 是否全部 ASCII ---
 fn is_all_ascii(label : String) -> Bool {
-  let bs = @buf.string_to_utf8_bytes(label).to_array()
+  let bs = @encoding/utf8.encode(label).to_array()
   let mut i = 0
   while i < bs.length() {
     let b = bs[i].to_int()
@@ -86,7 +86,7 @@ fn join_labels(labels : Array[String]) -> String {
 ///|
 // --- 工具：判断 label 是否以 xn-- 开头（不区分大小写） ---
 fn is_punycode_label(label : String) -> Bool {
-  let bs = @buf.string_to_utf8_bytes(label).to_array()
+  let bs = @encoding/utf8.encode(label).to_array()
   if bs.length() < 4 {
     return false
   }
@@ -114,14 +114,14 @@ fn is_punycode_label(label : String) -> Bool {
 }
 
 ///|
-// --- 工具：取掉 xn-- 前缀后的 payload 字符串 ---
-fn punycode_payload(label : String) -> String raise @buf.Utf8DecodeError {
-  let bs = @buf.string_to_utf8_bytes(label).to_array()
+/// --- 工具：取掉 xn-- 前缀后的 payload 字符串 ---
+fn punycode_payload(label : String) -> String raise @encoding/utf8.Malformed {
+  let bs = @encoding/utf8.encode(label).to_array()
   let payload : Array[Byte] = []
   let mut i = 4
   while i < bs.length() {
     payload.push(bs[i])
     i += 1
   }
-  @buf.utf8_bytes_to_string(Bytes::from_array(payload))
+  @encoding/utf8.decode(Bytes::from_array(payload))
 }

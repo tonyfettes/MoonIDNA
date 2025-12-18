@@ -1,4 +1,5 @@
 // --- Punycode 常量（RFC 3492） ---
+
 ///|
 const BASE : Int = 36
 

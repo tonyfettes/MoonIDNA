@@ -18,6 +18,7 @@ pub enum PunycodeError {
   Overflow
   InvalidUtf8
 }
+pub impl Show for PunycodeError
 
 // Type aliases
 
